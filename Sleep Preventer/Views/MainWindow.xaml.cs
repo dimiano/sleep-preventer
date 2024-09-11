@@ -1,127 +1,144 @@
-﻿using Hardcodet.Wpf.TaskbarNotification;
-using SleepPreventer.ViewModels;
-using Microsoft.Win32;
-using System;
+﻿using System;
 using System.Timers;
 using System.Windows;
+using System.Windows.Media;
+using Microsoft.Win32;
+using SleepPreventer.Utils;
+using SleepPreventer.ViewModels;
 
-namespace SleepPreventer.Views
+namespace SleepPreventer.Views;
+
+/// <summary>
+/// Interaction logic for MainWindow.xaml
+/// </summary>
+public partial class MainWindow : Window, IMainWindow
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
-    public partial class MainWindow : Window, IMainWindow
+    private readonly MainViewModel _viewModel;
+    private Timer _timer;
+    private int _timerIntervalSeconds;
+    private const int _MouseShift = 5;
+
+    public MainWindow(int updateInterval)
     {
-        private readonly MainViewModel _viewModel;
-        private Timer _timer;
+        InitializeComponent();
 
-        public MainWindow(int updateInterval)
+        _viewModel = new MainViewModel(this);
+        _timerIntervalSeconds = updateInterval;
+        _viewModel.UpdateInterval = _timerIntervalSeconds;
+
+        MainGrid.DataContext = _viewModel;
+
+        InitTimer(updateInterval);
+
+        SystemEvents.SessionSwitch += OnSessionSwitch;
+    }
+
+    private void InitTimer(int updateIntervalSeconds)
+    {
+        _timer = new Timer();
+        _timer.Interval = TimeSpan.FromSeconds(updateIntervalSeconds).TotalMilliseconds;
+        _timer.Elapsed += OnTimerElapsed;
+        _timer.Start();
+    }
+
+    public void TimerDispose()
+    {
+        _timer.Stop();
+        _timer.Elapsed -= OnTimerElapsed;
+        _timer.Dispose();
+    }
+
+    public void ShowNotification()
+    {
+        //// Hardcodet.NotifyIcon.Wpf package
+        //if (_viewModel.IsTrayPopupEnables)
+        //{
+        //    Hardcodet.Wpf.TaskbarNotification.NotifyIcon.ShowBalloonTip(
+        //        "Sleep Preventer is working ...",
+        //        $"Status: {_viewModel.Status}, Interval: {_timerIntervalSeconds} sec",
+        //        BalloonIcon.Info);
+        //}
+    }
+
+    public void CloseApp()
+    {
+        TimerDispose();
+        SystemEvents.SessionSwitch -= OnSessionSwitch;
+
+        Application.Current.Shutdown();
+    }
+
+    public void PreventSleep()
+    {
+        if (_viewModel.IsEnabled)
         {
-            InitializeComponent();
+            // Prevent screen from sleeping
+            ScreenSaverPreventer.PreventScreenSaver(_viewModel.IsEnabled);
 
-            _viewModel = new MainViewModel(this);
-            _viewModel.UpdateInterval = updateInterval;
-
-            MainGrid.DataContext = _viewModel;
-
-            InitTimer(updateInterval);
-
-            SystemEvents.SessionSwitch += OnSessionSwitch;
-        }
-
-        private void InitTimer(int updateInterval)
-        {
-            _timer = new Timer();
-            _timer.Interval = TimeSpan.FromMinutes(updateInterval).TotalMilliseconds;
-            _timer.Elapsed += OnTimerElapsed;
-            _timer.Start();
-        }
-
-        public void TimerDispose()
-        {
-            _timer.Stop();
-            _timer.Elapsed -= OnTimerElapsed;
-            _timer.Dispose();
-        }
-
-        public void ShowNotification()
-        {
-            NotifyIcon.ShowBalloonTip(
-                "Sleep Preventer is working ...",
-                $"Status: {_viewModel.Status}, Interval: {_timer.Interval}",
-                BalloonIcon.Info);
-        }
-
-        public void PreventSleep()
-        {
-            _timer.Interval = TimeSpan.FromMinutes(_viewModel.UpdateInterval).TotalMilliseconds;
-            _viewModel.Status = _viewModel.IsEnabled ? "Enabled" : "Disabled";
-
-            //var msgResult = MessageBox.Show(
-            //    this,
-            //    $"Flat count updated: {_viewModel.FlatsCount}\nOpen LOKUM site?",
-            //    "Lokum info update",
-            //    MessageBoxButton.YesNo,
-            //    MessageBoxImage.Exclamation);
-
-            Utils.ScreenSaverPreventer.PreventScreenSaver(_viewModel.IsEnabled);
+            // Prevent teams from put away status
+            KeyboardHelper.KeyDoublePress(KeyboardPInvoke.KeyCode.NUMLOCK);
+            //MouseHelper.MoveCursorBy(_MouseShift); // TODO: test with Teams
 
             _viewModel.UpdateDateTime = DateTime.Now;
         }
+    }
 
-        public void ToggleWindowVisibility(bool isForceShow)
+    public void ToggleWindowVisibility(bool isForceShow)
+    {
+        if (isForceShow)
         {
-            if (isForceShow)
+            ShowInTaskbar = true;
+            Visibility = Visibility.Visible;
+            WindowState = WindowState.Normal;
+        }
+        else
+        {
+            ShowInTaskbar = !ShowInTaskbar;
+            if (ShowInTaskbar)
             {
-                ShowInTaskbar = true;
-                Visibility = Visibility.Visible;
                 WindowState = WindowState.Normal;
+                Visibility = Visibility.Visible;
             }
             else
             {
-                ShowInTaskbar = !ShowInTaskbar;
-                if (ShowInTaskbar)
-                {
-                    WindowState = WindowState.Normal;
-                    Visibility = Visibility.Visible;
-                }
-                else
-                {
-                    Hide();
-                    ShowNotification();
-                }
-                //WindowState = ShowInTaskbar ? WindowState.Normal : WindowState.Minimized;
-                //Visibility = ShowInTaskbar ? Visibility.Visible : Visibility.Hidden;
-                //ShowNotification();
+                Hide();
+                ShowNotification();
             }
+            //WindowState = ShowInTaskbar ? WindowState.Normal : WindowState.Minimized;
+            //Visibility = ShowInTaskbar ? Visibility.Visible : Visibility.Hidden;
+            //ShowNotification();
         }
+    }
 
-        public void CloseApp()
-        {
-            TimerDispose();
-            SystemEvents.SessionSwitch -= OnSessionSwitch;
+    public void UpdateSettings()
+    {
+        if (_timerIntervalSeconds == _viewModel.UpdateInterval)
+            return;
 
-            Application.Current.Shutdown();
-        }
+        _timerIntervalSeconds = _viewModel.UpdateInterval;
+        _timer.Stop();
+        _timer.Interval = TimeSpan.FromSeconds(_timerIntervalSeconds).TotalMilliseconds;
 
-        private void OnTimerElapsed(object sender, ElapsedEventArgs e)
+        if (_viewModel.IsEnabled)
+            _timer.Start();
+    }
+
+    private void OnTimerElapsed(object sender, ElapsedEventArgs e)
+    {
+        PreventSleep();
+    }
+
+    private void OnSessionSwitch(object sender, SessionSwitchEventArgs e)
+    {
+        if (e.Reason is SessionSwitchReason.SessionUnlock or SessionSwitchReason.SessionLogon)
         {
             PreventSleep();
         }
+    }
 
-        private void OnSessionSwitch(object sender, SessionSwitchEventArgs e)
-        {
-            if (e.Reason == SessionSwitchReason.SessionUnlock ||
-                e.Reason == SessionSwitchReason.SessionLogon)
-            {
-                PreventSleep();
-            }
-        }
-
-        private void EnabledStateChanged(object sender, RoutedEventArgs e)
-        {
-            _viewModel.Status = _viewModel.IsEnabled ? "Enabled" : "Disabled";
-            btnToggle.Background = _viewModel.IsEnabled ? System.Windows.Media.Brushes.Red : System.Windows.Media.Brushes.Gray;
-        }
+    private void EnabledStateChanged(object sender, RoutedEventArgs e)
+    {
+        _viewModel.Status = _viewModel.IsEnabled ? "Enabled" : "Disabled";
+        btnToggle.Background = _viewModel.IsEnabled ? Brushes.Green : Brushes.Gray;
     }
 }

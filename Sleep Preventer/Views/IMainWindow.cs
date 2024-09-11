@@ -1,9 +1,9 @@
-namespace SleepPreventer.Views
+namespace SleepPreventer.Views;
+
+public interface IMainWindow
 {
-    public interface IMainWindow
-    {
-        void PreventSleep();
-        void CloseApp();
-        void ToggleWindowVisibility(bool isForceShow);
-    }
+    void CloseApp();
+    void PreventSleep();
+    void ToggleWindowVisibility(bool isForceShow);
+    void UpdateSettings();
 }
