@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Timers;
 using System.Windows;
 using System.Windows.Media;
@@ -16,7 +17,7 @@ public partial class MainWindow : Window, IMainWindow
     private readonly MainViewModel _viewModel;
     private Timer _timer;
     private int _timerIntervalSeconds;
-    private const int _MouseShift = 5;
+    private const int _mouseShift = 5;
 
     public MainWindow(int updateInterval)
     {
@@ -25,6 +26,7 @@ public partial class MainWindow : Window, IMainWindow
         _viewModel = new MainViewModel(this);
         _timerIntervalSeconds = updateInterval;
         _viewModel.UpdateInterval = _timerIntervalSeconds;
+        _viewModel.SelectedKeyItem = nameof(KeyboardPInvoke.KeyCode.F10);
 
         MainGrid.DataContext = _viewModel;
 
@@ -70,14 +72,14 @@ public partial class MainWindow : Window, IMainWindow
 
     public void PreventSleep()
     {
-        if (_viewModel.IsEnabled)
+        if (_viewModel.Enabled)
         {
             // Prevent screen from sleeping
-            ScreenSaverPreventer.PreventScreenSaver(_viewModel.IsEnabled);
+            ScreenSaverPreventer.PreventScreenSaver(_viewModel.Enabled);
 
             // Prevent teams from put away status
-            KeyboardHelper.KeyDoublePress(KeyboardPInvoke.KeyCode.NUMLOCK);
-            //MouseHelper.MoveCursorBy(_MouseShift); // TODO: test with Teams
+                KeyboardHelper.KeyDoublePress(_viewModel.SelectedKey);
+            //MouseHelper.MoveCursorBy(_MouseShift);
 
             _viewModel.UpdateDateTime = DateTime.Now;
         }
@@ -119,8 +121,10 @@ public partial class MainWindow : Window, IMainWindow
         _timer.Stop();
         _timer.Interval = TimeSpan.FromSeconds(_timerIntervalSeconds).TotalMilliseconds;
 
-        if (_viewModel.IsEnabled)
+        if (_viewModel.Enabled)
             _timer.Start();
+
+        _viewModel.UpdateDateTime = DateTime.Now;
     }
 
     private void OnTimerElapsed(object sender, ElapsedEventArgs e)
@@ -138,7 +142,7 @@ public partial class MainWindow : Window, IMainWindow
 
     private void EnabledStateChanged(object sender, RoutedEventArgs e)
     {
-        _viewModel.Status = _viewModel.IsEnabled ? "Enabled" : "Disabled";
-        btnToggle.Background = _viewModel.IsEnabled ? Brushes.Green : Brushes.Gray;
+        _viewModel.Status = _viewModel.Enabled ? "Enabled" : "Disabled";
+        btnEnabledToggle.Background = _viewModel.Enabled ? Brushes.Green : Brushes.Gray;
     }
 }

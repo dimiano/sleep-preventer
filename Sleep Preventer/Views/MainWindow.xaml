@@ -3,10 +3,11 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:tb="http://www.hardcodet.net/taskbar"
         mc:Ignorable="d"
         Title="Sleep Preventer" Icon="..\Images\favicon.ico" WindowStartupLocation="CenterScreen"
-        Height="170" Width="300" MinHeight="100" MinWidth="300">
+        Height="200" Width="300" MinHeight="200" MinWidth="300">
     <Window.Resources>
         <Style TargetType="{x:Type Label}" x:Key="BoldLabel">
             <Setter Property="FontWeight" Value="Bold" />
@@ -16,7 +17,7 @@
     </Window.Resources>
     <Grid Name="MainGrid" d:DataContext="{d:DesignData viewModels:MainViewModel}" RenderTransformOrigin="0.502,0.493">
         <Grid.Resources>
-            <Style TargetType="ButtonBase" x:Key="RedButton">
+            <Style TargetType="ButtonBase" x:Key="MainButton">
                 <Setter Property="Background" Value="DarkGreen" />
                 <Setter Property="Foreground" Value="White" />
                 <Setter Property="FontWeight" Value="Bold" />
@@ -50,9 +51,10 @@
                     BorderThickness="2"
                     CornerRadius="4"
                     Width="190"
-                    Height="100">
+                    Height="125">
                 <Grid>
                     <Grid.RowDefinitions>
+                        <RowDefinition />
                         <RowDefinition />
                         <RowDefinition />
                         <RowDefinition />
@@ -86,14 +88,23 @@
                            Style="{StaticResource BoldLabel}"
                            Grid.Row="2"
                            Grid.Column="1" />
-                    <Label Content="Interval (sec): "
+                    <Label Content="Ms Teams: "
                            Foreground="White"
                            Style="{StaticResource BoldLabel}"
                            Grid.Row="3"
                            Grid.Column="0" />
-                    <Label Content="{Binding UpdateInterval}"
+                    <Label Content="{Binding KeepTeamsOnline}"
                            Style="{StaticResource BoldLabel}"
                            Grid.Row="3"
+                           Grid.Column="1" />
+                    <Label Content="Interval (sec): "
+                           Foreground="White"
+                           Style="{StaticResource BoldLabel}"
+                           Grid.Row="4"
+                           Grid.Column="0" />
+                    <Label Content="{Binding UpdateInterval}"
+                           Style="{StaticResource BoldLabel}"
+                           Grid.Row="4"
                            Grid.Column="1" />
                 </Grid>
             </Border>
@@ -105,7 +116,7 @@
                     Width="200"
                     Height="40">
                 <Button Content="Show main window"
-                        Style="{StaticResource RedButton}"
+                        Style="{StaticResource MainButton}"
                         Width="120"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
@@ -157,13 +168,22 @@
         <Label Content="{Binding UpdateDateTime}" ContentStringFormat="{}{0:yyyy-MM-dd HH:mm:ss}" Style="{StaticResource BoldLabel}" Margin="90,7,0,0" />
 
         <Label Content="Interval (seconds): " Foreground="Black" Style="{StaticResource BoldLabel}" Margin="8,34,0,0" />
-        <TextBox Text="{Binding UpdateInterval}" Foreground="DarkGreen" Height="20" Margin="143,39,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="40" FontWeight="Bold" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
+        <TextBox Text="{Binding UpdateInterval}" Foreground="DarkGreen" Height="20" Margin="143,39,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="40" FontWeight="Bold" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="LostFocus">
+                    <i:InvokeCommandAction Command="{Binding UpdateInfoCommand}" />
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+        </TextBox>
 
         <Label Content="Disable screen saver: " Foreground="Black" Style="{StaticResource BoldLabel}" Margin="8,59,0,0" />
-        <ToggleButton x:Name="btnToggle" Content="{Binding Status}" IsChecked="{Binding IsEnabled}" Style="{StaticResource RedButton}" Checked="EnabledStateChanged" Unchecked="EnabledStateChanged" Margin="143,64,0,0" Height="20" HorizontalAlignment="Left" VerticalAlignment="Top"  />
+        <ToggleButton x:Name="btnEnabledToggle" Content="{Binding Status}" IsChecked="{Binding Enabled}" Style="{StaticResource MainButton}" Checked="EnabledStateChanged" Unchecked="EnabledStateChanged" Margin="143,64,0,0" Height="20" HorizontalAlignment="Left" VerticalAlignment="Top"  />
 
-        <Button Content="Exit" Command="{Binding CloseAppCommand}" Style="{StaticResource RedButton}" Margin="0,0,10.4,9.8" />
-        <Button Content="Hide" Command="{Binding ShowHideMainWindowCommand}" Style="{StaticResource RedButton}" Margin="0,0,108.4,9.8" />
-        <Button Content="Update" Command="{Binding UpdateInfoCommand}" Style="{StaticResource RedButton}" Margin="0,0,188.6,9.8" />
+        <Button Content="Exit" Command="{Binding CloseAppCommand}" Style="{StaticResource MainButton}" Margin="0,0,10.4,9.8" />
+        <Button Content="Hide" Command="{Binding ShowHideMainWindowCommand}" Style="{StaticResource MainButton}" Margin="0,0,108.4,9.8" />
+        <Button Content="Update" Command="{Binding UpdateInfoCommand}" Style="{StaticResource MainButton}" Margin="0,0,188.6,9.8" />
+        <CheckBox Content=":Keep Ms Teams online" IsChecked="{Binding KeepTeamsOnline}" HorizontalAlignment="Left" Margin="8,90,0,0" VerticalAlignment="Top" FontWeight="Bold" FlowDirection="RightToLeft" Padding="5,0,5,0" />
+        <ComboBox ItemsSource="{Binding KeyCodes}" SelectedItem="{Binding SelectedKeyItem}" Text="Select key..." IsEditable="False" IsReadOnly="True" Margin="198,39,10,0" VerticalAlignment="Top" Height="20">
+        </ComboBox>
     </Grid>
 </Window>

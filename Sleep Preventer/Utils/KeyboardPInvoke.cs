@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace SleepPreventer.Utils
 {
-    internal class KeyboardPInvoke
+    public class KeyboardPInvoke
     {
         public enum KeyCode : ushort
         {

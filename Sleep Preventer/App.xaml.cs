@@ -13,7 +13,7 @@ public partial class App : Application
 {
     private const string HideParameter = "hide";
     private const string IntervalParameter = "interval";
-    private const int DefaultUpdateIntervalSeconds = 60;
+    private const int DefaultUpdateIntervalSeconds = 290;
     private const string IntervarRegExp = @"(?<=interval[-=:]*)\d+";
 
     private void Application_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
