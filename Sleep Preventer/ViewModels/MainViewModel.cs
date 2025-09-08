@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Input;
 using SleepPreventer.Commands;
-using SleepPreventer.Utils;
+using SleepPreventer.Tools;
 using SleepPreventer.Views;
 
 namespace SleepPreventer.ViewModels;
@@ -48,7 +48,7 @@ public class MainViewModel(IMainWindow mainWindow) : ViewModelBase
         set => SetProperty(ref _updateInterval, value);
     }
 
-    public string[] KeyCodes => [.. Enum.GetNames<KeyboardPInvoke.KeyCode>()];
+    public static string[] KeyCodes => [.. Enum.GetNames<KeyboardPInvoke.KeyCode>()];
     public KeyboardPInvoke.KeyCode SelectedKey { get; set; }
 
     public string SelectedKeyItem

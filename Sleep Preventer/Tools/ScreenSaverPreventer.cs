@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace SleepPreventer.Utils;
+namespace SleepPreventer.Tools;
 
 internal static partial class ScreenSaverPreventer
 {

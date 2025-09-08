@@ -1,7 +1,7 @@
 ﻿using System.Drawing;
 using System.Runtime.InteropServices;
 
-namespace SleepPreventer.Utils;
+namespace SleepPreventer.Tools;
 
 internal partial class MouseHelper
 {

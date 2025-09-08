@@ -179,9 +179,9 @@
         <Label Content="Disable screen saver: " Foreground="Black" Style="{StaticResource BoldLabel}" Margin="8,59,0,0" />
         <ToggleButton x:Name="btnEnabledToggle" Content="{Binding Status}" IsChecked="{Binding Enabled}" Style="{StaticResource MainButton}" Checked="EnabledStateChanged" Unchecked="EnabledStateChanged" Margin="143,64,0,0" Height="20" HorizontalAlignment="Left" VerticalAlignment="Top"  />
 
-        <Button Content="Exit" Command="{Binding CloseAppCommand}" Style="{StaticResource MainButton}" Margin="0,0,10.4,9.8" />
+        <Button Content="Exit" Command="{Binding CloseAppCommand}" Background="DarkSlateGray" Style="{StaticResource MainButton}"  Margin="0,0,10.4,9.8" />
         <Button Content="Hide" Command="{Binding ShowHideMainWindowCommand}" Style="{StaticResource MainButton}" Margin="0,0,108.4,9.8" />
-        <Button Content="Update" Command="{Binding UpdateInfoCommand}" Style="{StaticResource MainButton}" Margin="0,0,188.6,9.8" />
+        <!--<Button Content="Update" Command="{Binding UpdateInfoCommand}" Style="{StaticResource MainButton}" Margin="0,0,188.6,9.8" />-->
         <CheckBox Content=":Keep Ms Teams online" IsChecked="{Binding KeepTeamsOnline}" HorizontalAlignment="Left" Margin="8,90,0,0" VerticalAlignment="Top" FontWeight="Bold" FlowDirection="RightToLeft" Padding="5,0,5,0" />
         <ComboBox ItemsSource="{Binding KeyCodes}" SelectedItem="{Binding SelectedKeyItem}" Text="Select key..." IsEditable="False" IsReadOnly="True" Margin="198,39,10,0" VerticalAlignment="Top" Height="20">
         </ComboBox>

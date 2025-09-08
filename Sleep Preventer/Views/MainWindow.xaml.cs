@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Timers;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 using Microsoft.Win32;
-using SleepPreventer.Utils;
+using SleepPreventer.Tools;
 using SleepPreventer.ViewModels;
 
 namespace SleepPreventer.Views;
@@ -18,6 +18,7 @@ public partial class MainWindow : Window, IMainWindow
     private Timer _timer;
     private int _timerIntervalSeconds;
     private const int _mouseShift = 5;
+    private const string _defaultKey = nameof(KeyboardPInvoke.KeyCode.SHIFT);
 
     public MainWindow(int updateInterval)
     {
@@ -26,7 +27,7 @@ public partial class MainWindow : Window, IMainWindow
         _viewModel = new MainViewModel(this);
         _timerIntervalSeconds = updateInterval;
         _viewModel.UpdateInterval = _timerIntervalSeconds;
-        _viewModel.SelectedKeyItem = nameof(KeyboardPInvoke.KeyCode.F10);
+        _viewModel.SelectedKeyItem = _defaultKey;
 
         MainGrid.DataContext = _viewModel;
 
@@ -78,7 +79,7 @@ public partial class MainWindow : Window, IMainWindow
             ScreenSaverPreventer.PreventScreenSaver(_viewModel.Enabled);
 
             // Prevent teams from put away status
-                KeyboardHelper.KeyDoublePress(_viewModel.SelectedKey);
+            KeyboardHelper.KeyDoublePress(_viewModel.SelectedKey);
             //MouseHelper.MoveCursorBy(_MouseShift);
 
             _viewModel.UpdateDateTime = DateTime.Now;
