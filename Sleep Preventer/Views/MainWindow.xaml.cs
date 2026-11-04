@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using Microsoft.Win32;
+using SleepPreventer.Settings;
 using SleepPreventer.Tools;
 using SleepPreventer.ViewModels;
 
@@ -17,21 +18,22 @@ public partial class MainWindow : Window, IMainWindow
     private readonly MainViewModel _viewModel;
     private Timer _timer;
     private int _timerIntervalSeconds;
+    private readonly SettingsService _settingsService;
     private const int _mouseShift = 5;
-    private const string _defaultKey = nameof(KeyboardPInvoke.KeyCode.SHIFT);
 
-    public MainWindow(int updateInterval)
+    internal MainWindow(AppSettings settings, SettingsService settingsService)
     {
         InitializeComponent();
 
+        _settingsService = settingsService;
         _viewModel = new MainViewModel(this);
-        _timerIntervalSeconds = updateInterval;
+        _timerIntervalSeconds = settings.Interval;
         _viewModel.UpdateInterval = _timerIntervalSeconds;
-        _viewModel.SelectedKeyItem = _defaultKey;
+        _viewModel.SelectedKeyItem = Enum.GetName(settings.Key);
 
         MainGrid.DataContext = _viewModel;
 
-        InitTimer(updateInterval);
+        InitTimer(settings.Interval);
 
         SystemEvents.SessionSwitch += OnSessionSwitch;
     }
@@ -115,6 +117,12 @@ public partial class MainWindow : Window, IMainWindow
 
     public void UpdateSettings()
     {
+        _settingsService.Save(new AppSettings
+        {
+            Interval = _viewModel.UpdateInterval,
+            Key = _viewModel.SelectedKey
+        });
+
         if (_timerIntervalSeconds == _viewModel.UpdateInterval)
             return;
 
@@ -145,5 +153,11 @@ public partial class MainWindow : Window, IMainWindow
     {
         _viewModel.Status = _viewModel.Enabled ? "Enabled" : "Disabled";
         btnEnabledToggle.Background = _viewModel.Enabled ? Brushes.Green : Brushes.Gray;
+    }
+
+    private void SelectedKeyChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (IsLoaded)
+            UpdateSettings();
     }
 }

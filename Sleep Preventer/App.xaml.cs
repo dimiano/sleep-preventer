@@ -2,6 +2,7 @@
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
+using SleepPreventer.Settings;
 using SleepPreventer.Views;
 
 namespace SleepPreventer;
@@ -13,7 +14,6 @@ public partial class App : Application
 {
     private const string HideParameter = "hide";
     private const string IntervalParameter = "interval";
-    private const int DefaultUpdateIntervalSeconds = 290;
     private const string IntervarRegExp = @"(?<=interval[-=:]*)\d+";
 
     private void Application_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
@@ -24,8 +24,9 @@ public partial class App : Application
 
     private void App_OnStartup(object sender, StartupEventArgs e)
     {
+        var settingsService = new SettingsService();
+        var settings = settingsService.Get();
         var startMinimized = false;
-        var updateInterval = DefaultUpdateIntervalSeconds;
 
         foreach (var arg in e.Args)
         {
@@ -38,12 +39,12 @@ public partial class App : Application
                 var match = Regex.Match(arg, IntervarRegExp, RegexOptions.IgnoreCase);
                 if (match.Success)
                 {
-                    updateInterval = Convert.ToInt32(match.Value);
+                    settings.Interval = Convert.ToInt32(match.Value);
                 }
             }
         }
 
-        var mainWindow = new MainWindow(updateInterval);
+        var mainWindow = new MainWindow(settings, settingsService);
         Task.Run(mainWindow.PreventSleep)
             .ContinueWith((t) =>
             {

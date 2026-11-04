@@ -108,20 +108,6 @@
                            Grid.Column="1" />
                 </Grid>
             </Border>
-            <Border x:Key="PopUpBorder"
-                    Background="DarkGreen"
-                    BorderBrush="White"
-                    BorderThickness="2"
-                    CornerRadius="4"
-                    Width="200"
-                    Height="40">
-                <Button Content="Show main window"
-                        Style="{StaticResource MainButton}"
-                        Width="120"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        Command="{Binding ShowHideMainWindowCommand}" />
-            </Border>
             <ContextMenu x:Key="TrayContextMenu"
                          Background="DarkGreen"
                          Foreground="White"
@@ -158,11 +144,15 @@
                         IconSource="/Images/favicon.ico"
                         Visibility="Visible"
                         ToolTipText="Sleep Preventer"
-                        PopupActivation="DoubleClick"
-                        MenuActivation="LeftOrRightClick"
-                        TrayPopup="{StaticResource PopUpBorder}"
+                        MenuActivation="RightClick"
                         TrayToolTip="{StaticResource ToolTipBorder}"
-                        ContextMenu="{StaticResource TrayContextMenu}" />
+                        ContextMenu="{StaticResource TrayContextMenu}">
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="TrayMouseDoubleClick">
+                    <i:InvokeCommandAction Command="{Binding ShowHideMainWindowCommand}" />
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+        </tb:TaskbarIcon>
 
         <Label Content="Last update: " Foreground="Black" Style="{StaticResource BoldLabel}" Margin="8,7,0,0" />
         <Label Content="{Binding UpdateDateTime}" ContentStringFormat="{}{0:yyyy-MM-dd HH:mm:ss}" Style="{StaticResource BoldLabel}" Margin="90,7,0,0" />
@@ -183,7 +173,7 @@
         <Button Content="Hide" Command="{Binding ShowHideMainWindowCommand}" Style="{StaticResource MainButton}" Margin="0,0,108.4,9.8" />
         <!--<Button Content="Update" Command="{Binding UpdateInfoCommand}" Style="{StaticResource MainButton}" Margin="0,0,188.6,9.8" />-->
         <CheckBox Content=":Keep Ms Teams online" IsChecked="{Binding KeepTeamsOnline}" HorizontalAlignment="Left" Margin="8,90,0,0" VerticalAlignment="Top" FontWeight="Bold" FlowDirection="RightToLeft" Padding="5,0,5,0" />
-        <ComboBox ItemsSource="{Binding KeyCodes}" SelectedItem="{Binding SelectedKeyItem}" Text="Select key..." IsEditable="False" IsReadOnly="True" Margin="198,39,10,0" VerticalAlignment="Top" Height="20">
+        <ComboBox ItemsSource="{Binding KeyCodes}" SelectedItem="{Binding SelectedKeyItem}" SelectionChanged="SelectedKeyChanged" Text="Select key..." IsEditable="False" IsReadOnly="True" Margin="198,39,10,0" VerticalAlignment="Top" Height="20">
         </ComboBox>
     </Grid>
 </Window>
