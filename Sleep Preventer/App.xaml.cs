@@ -37,9 +37,9 @@ public partial class App : Application
             else if (arg.Contains(IntervalParameter))
             {
                 var match = Regex.Match(arg, IntervarRegExp, RegexOptions.IgnoreCase);
-                if (match.Success)
+                if (match.Success && int.TryParse(match.Value, out var interval) && AppSettings.IsIntervalValid(interval))
                 {
-                    settings.Interval = Convert.ToInt32(match.Value);
+                    settings.Interval = interval;
                 }
             }
         }

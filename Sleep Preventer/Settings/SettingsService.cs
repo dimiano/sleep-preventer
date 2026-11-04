@@ -26,13 +26,14 @@ internal class SettingsService
             return defaults;
         }
 
+        // 1. settings file valid
         using var stream = File.OpenRead(_settingsFilePath);
         var settings = JsonSerializer.Deserialize<AppSettings>(stream, _jsonOptions);
         if (IsValid(settings))
-            return settings;
+            return NormalizeSettings(settings);
 
+        // 2. settings file invalid
         Save(defaults);
-
         //catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or JsonException or ArgumentException)
 
         return defaults;
@@ -42,14 +43,30 @@ internal class SettingsService
     {
         ArgumentNullException.ThrowIfNull(settings);
 
-        using (var stream = new FileStream(_settingsFilePath, FileMode.Create, FileAccess.Write, FileShare.None))
+        using var stream = new FileStream(_settingsFilePath, FileMode.Create, FileAccess.Write, FileShare.None);
+        JsonSerializer.Serialize(stream, settings, _jsonOptions);
+    }
+
+    private static AppSettings NormalizeSettings(AppSettings settings)
+    {
+        const string httpsPrefix = "https://";
+
+        if (!string.IsNullOrWhiteSpace(settings.Url) && 
+            !settings.Url.StartsWith(httpsPrefix, StringComparison.OrdinalIgnoreCase) &&
+            !settings.Url.StartsWith("http://", StringComparison.OrdinalIgnoreCase))
         {
-            JsonSerializer.Serialize(stream, settings, _jsonOptions);
+            settings.Url = httpsPrefix + settings.Url;
         }
+
+        return settings;
     }
 
     private static bool IsValid(AppSettings settings)
     {
-        return settings is not null && settings.Interval > 0 && Enum.IsDefined(settings.Key);
+        if(settings is null) return false;
+
+        var isIntervalValid = AppSettings.IsIntervalValid(settings.Interval);
+        var isKeyValid = Enum.IsDefined(settings.Key);
+        return isIntervalValid && isKeyValid;
     }
 }

@@ -13,6 +13,7 @@ public class MainViewModel(IMainWindow mainWindow) : ViewModelBase
     private bool _isEnabled = true;
     private bool _isKeepTeamsOnline = true;
     private int _updateInterval;
+    private int _dataLength;
 
     private ICommand _showHideMainWindowCommand;
     private ICommand _updateInfoCommand;
@@ -47,6 +48,14 @@ public class MainViewModel(IMainWindow mainWindow) : ViewModelBase
         get => _updateInterval;
         set => SetProperty(ref _updateInterval, value);
     }
+
+    public int DataLength
+    {
+        get => _dataLength;
+        set => SetProperty(ref _dataLength, value);
+    }
+
+    public string Url { get; set; } = string.Empty;
 
     public static string[] KeyCodes => [.. Enum.GetNames<KeyboardPInvoke.KeyCode>()];
     public KeyboardPInvoke.KeyCode SelectedKey { get; set; }

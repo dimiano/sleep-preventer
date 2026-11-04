@@ -51,9 +51,10 @@
                     BorderThickness="2"
                     CornerRadius="4"
                     Width="190"
-                    Height="125">
+                    Height="160">
                 <Grid>
                     <Grid.RowDefinitions>
+                        <RowDefinition />
                         <RowDefinition />
                         <RowDefinition />
                         <RowDefinition />
@@ -105,6 +106,15 @@
                     <Label Content="{Binding UpdateInterval}"
                            Style="{StaticResource BoldLabel}"
                            Grid.Row="4"
+                           Grid.Column="1" />
+                    <Label Content="URL data (len):"
+                           Foreground="White"
+                           Style="{StaticResource BoldLabel}"
+                           Grid.Row="5"
+                           Grid.Column="0" />
+                    <Label Content="{Binding DataLength}"
+                           Style="{StaticResource BoldLabel}"
+                           Grid.Row="5"
                            Grid.Column="1" />
                 </Grid>
             </Border>
